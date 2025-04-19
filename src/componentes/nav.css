@@ -1,0 +1,43 @@
+.shield {
+    width: 90%;
+    height: 10px;
+    background: #ebebeb48;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  
+  .shieldfill {
+    height: 100%;
+    background: linear-gradient(90deg, #d32de28a, #cd00e0cc);
+    transition: width 1s ease-in-out;
+
+}
+
+.tep {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 10px 0;
+    background-color: red;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    z-index: 1000;
+    font-size: 16px;
+}
+  
+nav img{
+    width: 50%;
+    height: 100px;
+  }
+  
+nav{
+  padding: 20px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
