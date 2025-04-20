@@ -1,7 +1,6 @@
 import { useState,useRef } from 'react';
 import './pag7.css';
 import { QRCodeSVG } from 'qrcode.react';
-
 const produtos = [
   {
     nome: 'KIT FRAN GLOSSLICIOUS BY FRANCINY EHLKE',

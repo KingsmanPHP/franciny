@@ -9,6 +9,7 @@ import Pag6 from './pages/pag6';
 import Pag7 from './pages/pag7';
 import Navbar from './componentes/nav';
 import './App.css';
+import PixelKawaii from './pixel';
 
 function App() {
   const [progresso, setProgresso] = useState(20);
@@ -52,6 +53,7 @@ function App() {
 
   return (
     <div>
+    <PixelKawaii />
     {tela !== 'pag7' && <Navbar progresso={progresso} />}
       <div className={`tela-animada ${animando ? 'fade-out' : 'fade-in'}`}>
         {getTelaAtual()}
