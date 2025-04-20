@@ -6,31 +6,42 @@ const produtos = [
   {
     nome: 'KIT FRAN GLOSSLICIOUS BY FRANCINY EHLKE',
     imagem: 'https://cdn.iset.io/assets/70914/produtos/199/medida-ecomm-fran-kit-glosslicious-prancheta-1-01.jpg',
+    preco: 129.90,
   },
   {
     nome: 'GLOSS FRAN BY FRANCINY EHLKE LIPHONEY',
     imagem: 'https://cdn.iset.io/assets/70914/produtos/204/lip-honey-fran-by-fr-01.jpg',
+    preco: 49.90,
   },
   {
     nome: 'Base Mate Real Filter 30g - FRANCINY EHLKE',
     imagem: 'https://cdn.awsli.com.br/2500x2500/2569/2569686/produto/216476854/1994-base-mate-real-filter-fran-by-franciny-ehlke-1644374997-bjxjfqp62o.jpg',
+    preco: 89.90,
   },
   {
     nome: 'Kit Fran #CHILLIKIT - FRANCINY EHLKE',
     imagem: 'https://cdn.awsli.com.br/2500x2500/2569/2569686/produto/258822625/chilliki-1-9qbtlprqd6.png',
+    preco: 99.90,
   },
   {
     nome: 'Balm Scrub Stick Bamboo - FRANCINY EHLKE',
     imagem: 'https://cdn.awsli.com.br/2500x2500/2569/2569686/produto/241602033/anyconv-com__7898969501903-0-dlvskuztx0.jpg',
+    preco: 39.90,
   },
   {
     nome: 'Paleta Iluminadores Fran Gritani - FRANCINY EHLKE',
     imagem: 'https://cdn.awsli.com.br/2500x2500/2569/2569686/produto/258824982/paleta-iluminadores-fran-gritani---franciny-ehlke-1-v5nn2ilt6y.png',
+    preco: 119.90,
   }
 ];
 
+const metodosEntrega = [
+  { nome: 'Correios - 7 dias úteis', valor: 19.99 },
+  { nome: 'Sedex Expresso - 3 dias úteis', valor: 28.98 }
+];
 export default function Pag8() {
   const [selecionados, setSelecionados] = useState([]);
+  const [metodoEntrega, setMetodoEntrega] = useState({ nome: '', valor: 0 });
   const [cep, setCep] = useState('');
   const [frete, setFrete] = useState(null);
   const [endereco, setEndereco] = useState(null);
@@ -45,41 +56,47 @@ export default function Pag8() {
     }
   };
 
+  const toggleMetodoEntrega = (nome, valor) => {
+    setMetodoEntrega({ nome, valor });
+  };
+
+
   const consultarCep = async () => {
     if (cep.length !== 8) {
       setErroCep(true);
       return;
     }
-  
+
     try {
       const response = await fetch(`https://api.brasilaberto.com/v1/zipcode/${cep}`, {
         headers: {
           Authorization: `Bearer 9JTM5y6W26pfNhFCVH2tj9NP5aGRRM65L7r0t0ApYfJRLORVV5sKijdF9lPCi6Lu`
         }
       });
-  
+
       if (!response.ok) {
-        // Aqui captura 404 ou qualquer outro erro HTTP
         setErroCep(true);
         return;
       }
-  
+
       const json = await response.json();
-  
-      if (!json.result || json.error) {
+
+      const enderecoExtraido = json.result;
+
+      if (!enderecoExtraido || json.error) {
         setErroCep(true);
         return;
       }
-  
-      setEndereco(json.result);
-      setFrete(19.99);
-  
+
+      setEndereco(enderecoExtraido);
+      setFrete(0);
+
       setTimeout(() => {
         if (resultadoRef.current) {
           resultadoRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       }, 300);
-  
+
     } catch (error) {
       console.error("Erro ao buscar o CEP:", error);
       setErroCep(true);
@@ -146,17 +163,31 @@ export default function Pag8() {
       <h2>Escolha até 2 produtos para receber de presente 🎁</h2>
 
       <div className="grid-produtos">
-        {produtos.map((p, i) => (
-          <div
-            key={i}
-            className={`produto-card ${selecionados.includes(p.nome) ? 'selecionado' : ''}`}
-            onClick={() => toggleProduto(p.nome)}
-          >
-            <img src={p.imagem} alt={p.nome} />
-            <p>{p.nome}</p>
-          </div>
-        ))}
-      </div>
+  {produtos.map((p, i) => {
+    const selecionado = selecionados.includes(p.nome);
+      const limiteAtingido = selecionados.length >= 2 && !selecionado;
+      
+      return (
+        <div
+          key={i}
+          className={`produto-card ${selecionado ? 'selecionado' : ''} ${limiteAtingido ? 'desabilitado' : ''}`}
+          onClick={() => !limiteAtingido && toggleProduto(p.nome)}
+        >
+          <img src={p.imagem} alt={p.nome} />
+          <p className="nome-produto">{p.nome}</p>
+          <p className="preco">
+            <span className="preco-original">R$ {p.preco.toFixed(2)}</span>
+            <span className="preco-gratis">Grátis</span>
+          </p>
+        </div>
+      );
+    })}
+  </div>
+  {selecionados.length === 2 && (
+  <button className="btn editar-btn" onClick={() => setSelecionados([])}>
+    Editar seleção de produtos
+  </button>
+)}
 
       <h3>Endereço de entrega</h3>
       <input
@@ -169,30 +200,47 @@ export default function Pag8() {
       <button className="btn" onClick={consultarCep}>Calcular Frete</button>
 
       <div className={`endereco-wrapper ${endereco ? 'mostrar' : ''}`}>
-  {endereco && (
-    <div className="endereco">
-      <p><strong>Rua:</strong> {endereco.street}</p>
-      <p><strong>Bairro:</strong> {endereco.district}</p>
-      <p><strong>Cidade:</strong> {endereco.city} - {endereco.state}</p>
-    </div>
-  )}
-<div ref={resultadoRef}>
+        {endereco && (
+          <div className="endereco">
+            <p><strong>Rua:</strong> {endereco.street}</p>
+            <p><strong>Bairro:</strong> {endereco.district}</p>
+            <p><strong>Cidade:</strong> {endereco.city} - {endereco.state}</p>
+          </div>
+        )}
 
-  {frete !== null && (
-    <div className="resumo">
-      <p><strong>Produtos:</strong> Grátis</p>
-      <p><strong>Frete SEDEX:</strong> R$ 19,99</p>
-      <p><strong>Total:</strong> R$ 19,99</p>
-      <button className="btn finalizar" onClick={() => {
-  setShowModal(true);
-  setTimeout(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, 300);
-}}>Finalizar Pedido</button>
+
+
+{selecionados.length === 2 && endereco && (
+  <>
+    <h3>Escolha o método de entrega</h3>
+    <div className="grid-produtos">
+      {metodosEntrega.map((m, i) => (
+        <div
+          key={i}
+          className={`produto-card ${metodoEntrega?.nome === m.nome ? 'selecionado' : ''}`}
+          onClick={() => toggleMetodoEntrega(m.nome, m.valor)}
+        >
+          <p>{m.nome}</p>
+          <small>R$ {m.valor.toFixed(2)}</small>
+        </div>
+      ))}
     </div>
-  )}
+  </>
+)}
+
+{selecionados.length === 2 && metodoEntrega?.nome && (
+  <div className="resumo">
+    <p><strong>Produtos:</strong> Grátis (2 selecionados)</p>
+    <p><strong>Frete:</strong> R$ {metodoEntrega.valor.toFixed(2)} ({metodoEntrega.nome})</p>
+    <p><strong>Total:</strong> R$ {metodoEntrega.valor.toFixed(2)}</p>
+    <button className="btn" onClick={() => setShowModal(true)}>
+      Finalizar Pedido
+    </button>
   </div>
-</div>
+)}
+
+
+    </div>
 {showModal && (
   <div
     className="modal-overlay"
