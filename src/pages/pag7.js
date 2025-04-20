@@ -48,6 +48,18 @@ export default function Pag8() {
   const [copied, setCopied] = useState(false);
   const [erroCep, setErroCep] = useState(false);
   const resultadoRef = useRef(null);
+  const modalRef = useRef(null);
+  
+  const abrirModal = () => {
+    setShowModal(true);
+
+    setTimeout(() => {
+      if (modalRef.current) {
+        modalRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 100); // pequeno delay pro modal renderizar
+  };
+
   const toggleProduto = (nome) => {
     if (selecionados.includes(nome)) {
       setSelecionados(selecionados.filter(p => p !== nome));
@@ -58,6 +70,12 @@ export default function Pag8() {
 
   const toggleMetodoEntrega = (nome, valor) => {
     setMetodoEntrega({ nome, valor });
+    
+    setTimeout(() => {
+      if (resultadoRef.current) {
+        resultadoRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 300);
   };
 
 
@@ -95,7 +113,7 @@ export default function Pag8() {
         if (resultadoRef.current) {
           resultadoRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-      }, 300);
+      }, 150);
 
     } catch (error) {
       console.error("Erro ao buscar o CEP:", error);
@@ -229,11 +247,11 @@ export default function Pag8() {
 )}
 
 {selecionados.length === 2 && metodoEntrega?.nome && (
-  <div className="resumo">
+  <div className="resumo" ref={resultadoRef}>
     <p><strong>Produtos:</strong> Grátis (2 selecionados)</p>
     <p><strong>Frete:</strong> R$ {metodoEntrega.valor.toFixed(2)} ({metodoEntrega.nome})</p>
     <p><strong>Total:</strong> R$ {metodoEntrega.valor.toFixed(2)}</p>
-    <button className="btn" onClick={() => setShowModal(true)}>
+    <button className="btn" onClick={abrirModal}>
       Finalizar Pedido
     </button>
   </div>
@@ -243,6 +261,7 @@ export default function Pag8() {
     </div>
 {showModal && (
   <div
+  ref={modalRef}
     className="modal-overlay"
     style={{ zIndex: 9999 }}
     onClick={() => !pagando && setShowModal(false)}
