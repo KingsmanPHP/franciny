@@ -12,7 +12,7 @@ import './App.css';
 
 function App() {
   const [progresso, setProgresso] = useState(20);
-  const [tela, setTela] = useState('pag7');
+  const [tela, setTela] = useState('intro');
   const [animando, setAnimando] = useState(false);
 
   const handleAvancar = () => {
